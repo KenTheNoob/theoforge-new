@@ -77,7 +77,7 @@ export default function Dashboard() {
     return new Date(dateString).toLocaleString();
   };
 
-  useEffect(() => {
+  {/* useEffect(() => {
     if (!isAuthenticated) {
       router.push('/');
     }
@@ -86,6 +86,7 @@ export default function Dashboard() {
   if (!isAuthenticated) {
     return null;
   }
+    */}
 
   return (
     <PageContainer>

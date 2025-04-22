@@ -20,8 +20,15 @@ const publicSans = Public_Sans({
   weight: ['400', '500', '600', '700'] 
 });
 
-import Header from '@/components/Layout/Header'; 
-import Footer from '@/components/Layout/Footer'; 
+import Header from '../components/Layout/Header'; 
+import Footer from '../components/Layout/Footer'; 
+import dynamic from 'next/dynamic';
+
+// Import ChatBox with dynamic loading to prevent SSR issues
+const ChatBox = dynamic(() => import('../components/Chat/ChatBox'), { 
+  ssr: false,
+  loading: () => null
+});
 
 import type { Metadata } from "next";
 
@@ -72,6 +79,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {/* Remove top padding to eliminate the white space */}
         <main>{children}</main> 
         <Footer />
+        {/* Add ChatBox component */}
+        <ChatBox />
         <Analytics />
       </body>
     </html>

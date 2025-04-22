@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const params = new URLSearchParams();
     params.append('username', email);
     params.append('password', password);
-    await axios.post(`${API_URL}/auth/login`, params).then(res => {
+    await axios.post(`http://localhost:8000/auth/login`, params).then(res => {
       try {
         // Decode jwt token into json
         const json = JSON.parse(decodeURIComponent(window.atob(res.data.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(function(c) {

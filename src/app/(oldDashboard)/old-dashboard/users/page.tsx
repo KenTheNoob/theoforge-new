@@ -186,7 +186,7 @@ const UsersTable: React.FC = () => {
       const params = new URLSearchParams();
       params.append('username', editFormData.email);
       params.append('password', editFormData.password);
-      const res = await axios.post(`${API_URL}/auth/login`, params);
+      const res = await axios.post(`http://localhost:8000/auth/login`, params);
       if(!res.data || !res.data.access_token) {
         window.alert('Failed to update profile');
         return;
