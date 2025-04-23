@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
 import { API_URL } from '@/utils/axiosConfig';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import FadingTextBadge from './FadingTextBadge';
 
 interface Question {
   id: string;
@@ -34,13 +36,14 @@ interface GuestInfo {
   status?: 'NEW' | 'CONTACTED' | 'CONVERTED';
 }
 
+type Theme = "light" | "dark";
+
 // Rebuilt Contact Page Component
 const ContactPage: React.FC = () => {
   const [guestInfo, setGuestInfo] = useState<GuestInfo>({id: '', sessionCount: 0, questionsAnswered: []});
   const [showContactForm, setShowContactForm] = useState(false);
   const [showAlert, setShowAlert] = useState({ show: false, message: "", type: "success" });
-  const pageTitle = "Meet Theophrastus";
-  const pageSubtitle = "Our AI assistant that can answer your questions, collect your information, and connect you with our team.";
+  const [theme, setTheme] = useState<Theme>("light");
 
   // Show success alert
   const showSuccessAlert = (message: string) => {
@@ -110,44 +113,52 @@ const ContactPage: React.FC = () => {
   useEffect(() => {
     addEventListener('infoUpdate', function(event: any) {
       setGuestInfo(event.detail);
-      console.log(event.detail);
     });
+    addEventListener('themeChange', function(event: any) {
+      setTheme(event.detail);
+    })
   }, []);
 
   return (
-    <main>
-      <PageContainer 
-        title={pageTitle} 
-        subtitle={pageSubtitle} 
-      >
-        <div className="mx-auto w-full h-screen flex flex-col items-center justify-center pb-12">
-          <div className="relative w-full h-full max-w-md mx-auto">
-            <GuestChat />
-          </div>
-        </div>
+    <div className="h-[calc(100vh-64px)] w-full overflow-hidden bg-white dark:bg-gray-900">
+      <div className = "flex h-full">
+        <div className={`w-72 flex-shrink-0 overflow-hidden ${theme === "dark" ? "bg-gray-800 border border-gray-700 text-white dark" : "bg-gray-50 border-r border-gray-200"}`}>
+          <TooltipProvider>
+            <div className="inline-flex flex-col gap-4 p-4 w-full">
+              { guestInfo.name && (
+                <FadingTextBadge text={guestInfo.name} info="Your Name"></FadingTextBadge>
+              )}
+              { guestInfo.company &&
+                <FadingTextBadge text={guestInfo.company} info="Your Company"></FadingTextBadge>
+              }
+              { guestInfo.industry &&
+                <FadingTextBadge text={guestInfo.industry} info="Your Industry"></FadingTextBadge>
+              }
+              { guestInfo.budget &&
+                <FadingTextBadge text={guestInfo.budget} info="Your Budget"></FadingTextBadge>
+              }
+              { guestInfo.timeline &&
+                <FadingTextBadge text={guestInfo.timeline} info="Your Project Timeline"></FadingTextBadge>
+              }
+              { guestInfo.contact_info &&
+                <FadingTextBadge text={guestInfo.contact_info} info="Your Contact Info"></FadingTextBadge>
+              }
+              { guestInfo.additional_notes &&
+                <FadingTextBadge text={guestInfo.additional_notes} info="Additional Notes"></FadingTextBadge>
+              }
+              { guestInfo.project_type && guestInfo.project_type.some(str => str.length > 0) &&
+                <FadingTextBadge text={guestInfo.project_type.join(", ")} info="Project Type"></FadingTextBadge>
+              }
+              { guestInfo.pain_points && guestInfo.pain_points.some(str => str.length > 0) &&
+                <FadingTextBadge text={guestInfo.pain_points.join(", ")} info="Pain Points"></FadingTextBadge>
+              }
+              { guestInfo.current_tech && guestInfo.current_tech.some(str => str.length > 0) &&
+                <FadingTextBadge text={guestInfo.current_tech.join(", ")} info="Current Tech"></FadingTextBadge>
+              }
+            </div>
+          </TooltipProvider>
 
-        {/* Divider */}
-        <hr className="my-12 md:my-16 border-border-light dark:border-border-dark" />
-
-        {/* Contact Info Section */}
-        <div className="text-center"> 
-          <h2 className="font-poppins text-2xl font-semibold mb-6 text-text-primary dark:text-dark-text-primary">
-            Contact Information
-          </h2>
           <div className="flex flex-col space-y-3 items-center">
-            <a
-              href="mailto:info@yourcompany.com" 
-              className="font-poppins flex items-center text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors duration-150 ease-in-out"
-            >
-              <span className="ml-2">info@yourcompany.com</span> 
-            </a>
-            <a
-              href="tel:+1234567890" 
-              className="font-poppins flex items-center text-text-secondary dark:text-dark-text-secondary hover:text-primary dark:hover:text-dark-primary transition-colors duration-150 ease-in-out"
-            >
-              <span className="ml-2">(123) 456-7890</span> 
-            </a>
-            {/* Add Address etc. if needed using similar structure */}
             {guestInfo.status !== 'CONTACTED' ? (
               <button
                 className="text-sm font-bold px-4 py-2 rounded-lg transition-all duration-300 bg-black text-white hover:bg-black/80 shadow-sm hover:shadow-md"
@@ -160,7 +171,8 @@ const ContactPage: React.FC = () => {
             )}
           </div>
         </div>
-      </PageContainer>
+        <GuestChat />
+      </div>
       {showContactForm && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50">
           <Card className="w-full max-w-md shadow-2xl rounded-2xl border border-neutral-300 bg-white dark:bg-gray-900 relative">
@@ -341,7 +353,7 @@ const ContactPage: React.FC = () => {
           <div>{showAlert.message}</div>
         </div>
       )}
-    </main>
+    </div>
   );
  };
 

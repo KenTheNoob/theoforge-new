@@ -10,7 +10,8 @@ import {
   UserCircleIcon,
   LockClosedIcon,
   ChevronDoubleRightIcon,
-  LightBulbIcon
+  LightBulbIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/outline';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card'
 import { getGuestId } from '@/lib/guestIdentifier';
@@ -151,7 +152,7 @@ export function GuestChat() {
   
   // Auto-scroll to the latest message
     useEffect(() => {
-      messageEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
+      if (!showIntroduction) messageEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' });
     }, [visibleMessages]);
   
   // Filter out system messages for display
@@ -382,7 +383,6 @@ export function GuestChat() {
       }
       
       const data = await response.json();
-      console.log(data.choices[0].message.content);
       setGuestInfo(JSON.parse(data.choices[0].message.content));
       // Create response
       // Add system prompt and context to the first system message
@@ -518,41 +518,6 @@ export function GuestChat() {
     setTimeout(() => handleSend(text), 100);
   };
 
-  // Determine theme-based classes
-  const themeClasses = theme === 'dark' 
-    ? {
-        card: "bg-gray-900 border-gray-800",
-        header: `bg-gradient-to-r from-gray-800 to-gray-900`,
-        body: "bg-black",
-        message: {
-          user: `bg-teal-900 text-white`,
-          assistant: "bg-gray-800 text-gray-100",
-          intro: "bg-gray-800 text-black border border-gray-600",
-          timestamp: {
-            user: `text-teal-200`,
-            assistant: "text-gray-400"
-          }
-        },
-        input: "bg-gray-800 border-gray-700 text-white placeholder:text-gray-400",
-        footer: "border-gray-800"
-      }
-    : {
-        card: "bg-white border-gray-200",
-        header: `bg-gradient-to-r from-teal-500 to-teal-600`,
-        body: "bg-white",
-        message: {
-          user: `bg-teal-500 text-white`,
-          assistant: "bg-gray-100 text-gray-800",
-          intro: "bg-teal-50 text-teal-900 border border-teal-100",
-          timestamp: {
-            user: `text-teal-100`,
-            assistant: "text-gray-500"
-          }
-        },
-        input: "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-500",
-        footer: "border-gray-200"
-      };
-
   // Quick reply suggestions based on context
   const getSuggestions = () => {
     if (visibleMessages.length <= 1) {
@@ -579,31 +544,34 @@ export function GuestChat() {
   };
 
   return (
-    <Card className={`w-full h-full py-0 gap-0 ${themeClasses.card}`}>
-      <CardHeader className={`pt-4 pb-2 rounded-t-xl rounded-b-none shadow-md ${themeClasses.header}`}>
+    <Card className={`w-full rounded-none py-0 gap-0 ${theme === "dark" ? "dark" : ""}`}>
+      <CardHeader className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 shadow-sm rounded-b-none">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <div className="relative mr-3">
               <img 
-                src={"/logo.png"} 
+                src={"/characters/theophrastus.png"} 
                 alt={`Theoforge Logo`} 
                 className="h-9 w-9 rounded-full border-2 border-white shadow-sm" 
               />
             </div>
             <div>
-              <p className="text-white text-lg font-bold flex items-center">
+              <h2 className="text-lg font-semibold font-poppins text-gray-900 dark:text-white">
                 Theoforge AI
-              </p>
+              </h2>
             </div>
           </div>
           <div className="flex gap-1">
             <TooltipProvider>
               <Tooltip>
                 <button
-                  onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                  onClick={() => {
+                    setTheme(theme === "light" ? "dark" : "light");
+                    dispatchEvent(new CustomEvent("themeChange", {detail: theme === 'light' ? 'dark' as Theme : 'light' as Theme}));
+                  }}
                   className="h-8 w-8 rounded-full hover:bg-white/20 transition-all justify-items-center"
                 >
-                  <LightBulbIcon className="h-5 w-5" color="white"/>
+                  <LightBulbIcon className="h-5 w-5" color="teal"/>
                 </button>
                 <TooltipContent>Change Theme</TooltipContent>
               </Tooltip>
@@ -612,7 +580,7 @@ export function GuestChat() {
                   onClick={clearChat}
                   className="h-8 w-8 rounded-full hover:bg-white/20 transition-all justify-items-center"
                 >
-                  <TrashIcon className="h-5 w-5" color="white"/>
+                  <TrashIcon className="h-5 w-5" color="teal"/>
                 </button>
                 <TooltipContent>Clear chat</TooltipContent>
               </Tooltip>
@@ -621,29 +589,32 @@ export function GuestChat() {
         </div>
       </CardHeader>
       <CardContent
-        className={`flex-1 p-4 h-full overflow-y-auto space-y-4 ${themeClasses.body}`}
+        className={`flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-900 relative scroll-smooth space-y-4`}
       >
         {/* Introduction Panel - only shown at first */}
         {showIntroduction && (
-          <div className={`mb-6 p-4 rounded-lg ${themeClasses.message.intro}`}>
+          <div className={`mb-6 p-4 rounded-lg bg-gray-100 dark:bg-gray-800 border text-gray-800 dark:text-gray-200 shadow-sm`}>
             <div className="flex items-center mb-3">
               <SparklesIcon className={`h-5 w-5 text-teal-500 mr-2`} />
-              <h6 className="font-semibold">Welcome to Theoforge AI Assistant</h6>
+              <h1 className={`font-semibold text-xl`}>Meet Theophrastus</h1>
             </div>
-            <Paragraph variant="body1" className="mb-3">
-              I'm here to help answer your questions about our services and solutions. Feel free to ask about:
+            <Paragraph variant="body1" className={`mb-0`}>
+              Our AI assistant that can answer your questions, collect your information, and connect you with our team.
+            </Paragraph>
+            <Paragraph variant="body1" className={`mb-3 w-full text-center`}>
+              Feel free to ask about:
             </Paragraph>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
               {["ETL Solutions", "Knowledge Graphs", "Custom LLM Training", "Case Studies & Pricing"].map(
                 (service) => (
                   <div
-                    className={`p-2 rounded border border-teal-200 bg-white/80 dark:bg-gray-800/80 flex items-center`}
+                    className={`p-2 rounded border border-teal-200 flex items-center bg-white/80 dark:bg-gray-800/80`}
                     key={service}
                   >
                     <div className={`mr-2 p-1 rounded-full bg-teal-100 dark:bg-teal-900`}>
                       <ChevronDoubleRightIcon className={`h-3 w-3 text-teal-500`} />
                     </div>
-                    <Paragraph variant="body1" className="font-medium">{service}</Paragraph>
+                    <Paragraph variant="body1" className={`font-medium`}>{service}</Paragraph>
                   </div>
                 )
               )}
@@ -662,11 +633,11 @@ export function GuestChat() {
           <div className="flex justify-center mb-4">
             <Card
               color="teal"
-              className="px-3 py-1.5"
+              className={`px-3 py-1.5 dark:bg-gray-800 dark:text-white`}
             >
-              <div className={`flex items-center gap-2 ${theme==='dark' ? 'text-white' : ''}`}>
+              <div className={`flex items-center gap-2`}>
                 <UserCircleIcon className="h-4 w-4" />
-                <p className={theme==='dark' ? 'text-white' : ''}>{guestInfo.name+(guestInfo.company ? " from "+guestInfo.company : "")}</p>
+                <p className="dark:text-white">{guestInfo.name+(guestInfo.company ? " from "+guestInfo.company : "")}</p>
               </div>
             </Card>
           </div>
@@ -677,18 +648,18 @@ export function GuestChat() {
             <div 
               className={`max-w-[85%] p-4 rounded-xl shadow-md ${
                 msg.role === 'user' 
-                  ? themeClasses.message.user : themeClasses.message.assistant
+                  ? 'bg-primary text-white ml-2 shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm'
               }`}
             >
               {msg === visibleMessages[visibleMessages.length - 1] && isThinking 
-                ? <p className="text-sm whitespace-pre-wrap">{msg.content}<span className="animate-pulse">▌</span></p>
-                : <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                ? <p className="whitespace-pre-wrap">{msg.content}<span className="animate-pulse">▌</span></p>
+                : <p className="whitespace-pre-wrap">{msg.content}</p>
               }
               <Paragraph 
                 variant="body1" 
                 className={`mt-1 text-xs ${
                   msg.role === 'user' 
-                    ? themeClasses.message.timestamp.user : themeClasses.message.timestamp.assistant
+                    ? 'text-teal-100 dark:text-teal-200' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
                 {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -726,34 +697,48 @@ export function GuestChat() {
         {!isThinking && (
           <div className="pt-2 flex flex-col gap-4 items-center">
             {getSuggestions().map((suggestion, index) => (
-              <Button
+              <button
                 key={index}
-                size="sm"
-                className={`w-min h-min py-1 bg-transparent text-teal-500 font-bold cursor-pointer hover:bg-teal-200 outline-teal-500`}
                 onClick={() => handleQuickReply(suggestion)}
-              >{suggestion}</Button>
+                className={`flex items-center justify-between w-full text-left px-4 py-3 rounded-md 
+                    bg-white dark:bg-gray-800 hover:bg-primary/5 dark:hover:bg-primary/10 
+                    text-gray-800 dark:text-gray-100 transition-all duration-200 
+                    border border-gray-200 dark:border-gray-600 
+                    shadow-sm hover:shadow-md transform hover:-translate-y-px
+                    font-poppins`}
+              >
+                <span className="font-medium mr-2">{suggestion}</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                  <ArrowRightIcon className="w-3.5 h-3.5 text-primary dark:text-primary-light" />
+                </div>
+              </button>
             ))}
           </div>
         )}
         <div ref={messageEndRef} />
       </CardContent>
-      <CardFooter className={`border-t border-neutral-200 p-4 ${themeClasses.footer}`}>
-        <div className="flex gap-2 w-full">
-          <Input
+      <CardFooter className={`p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm`}>
+        <div className="w-full flex space-x-2">
+          <input
             type="text"
             autoComplete="invalid"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
-            className={`text-sm font-medium bg-white border border-neutral-300 py-2 px-4 focus-visible:ring-offset-0 focus:ring-2 focus:ring-teal-500 ${themeClasses.input}`}
+            className={`flex-1 p-2 px-4 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white disabled:opacity-50`}
+            aria-label="Message input"
             disabled={isThinking}
           />
           <Button
-            className="bg-teal-600 p-2 rounded-full shadow-md hover:bg-teal-700 focus:ring-2 focus:ring-teal-500"
+            type="submit"
             disabled={isThinking || !input.trim()}
+            className="p-2 rounded-full disabled:opacity-50"
+            aria-label="Send message"
           >
-            <PaperAirplaneIcon className="h-5 w-5" color="white"/>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
           </Button>
         </div>
       </CardFooter>
