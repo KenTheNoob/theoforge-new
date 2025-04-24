@@ -199,7 +199,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [isAuthenticated, router]);
 
