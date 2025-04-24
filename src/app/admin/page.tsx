@@ -200,13 +200,13 @@ export default function AdminDashboard() {
   }, [isAuthenticated, token]);
 
   // Protect the admin route - redirect if not authenticated or not an admin
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
-    } else if (user?.role !== 'ADMIN') {
-      router.push('/dashboard');
-    }
-  }, [isAuthenticated, user, router]);
+  // useEffect(() => {
+    // if (!isAuthenticated) {
+    //  router.push('/');
+   // } else if (user?.role !== 'ADMIN') {
+   //   router.push('/dashboard');
+  //  }
+  // }, [isAuthenticated, user, router]);
 
   // Don't render if not authenticated or not admin
   if (!isAuthenticated || user?.role !== 'ADMIN') {

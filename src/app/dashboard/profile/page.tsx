@@ -196,11 +196,11 @@ export default function ProfilePage() {
   }, [token, user]);
 
   // Protect the profile route - redirect to home if not authenticated
-  useEffect(() => {
-    if (!token) {
-      router.push('/');
-    }
-  }, [token, router]);
+ // useEffect(() => {
+   // if (!token) {
+   //   router.push('/');
+   // }
+  // }, [token, router]);
 
   // Handle form input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
