@@ -209,9 +209,9 @@ export default function AdminDashboard() {
   // }, [isAuthenticated, user, router]);
 
   // Don't render if not authenticated or not admin
-  if (!isAuthenticated || user?.role !== 'ADMIN') {
-    return null;
-  }
+  //if (!isAuthenticated || user?.role !== 'ADMIN') {
+ //   return null;
+ // }
 
   // Filter users based on search term
   const filteredUsers = users.filter(user => 
